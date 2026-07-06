@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Kataloq</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #ECE5DD;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: #075E54;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .header img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid #25D366;
+        }
+        .header-info h3 { font-size: 16px; }
+        .header-info span { 
+            font-size: 12px; 
+            color: #25D366; 
+        }
+        .header-whatsapp {
+            margin-left: auto;
+            background: #25D366;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* CHAT AREA */
+        .chat-area {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        /* MESSAGES */
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message.received {
+            align-items: flex-start;
+        }
+        .message.sent {
+            align-items: flex-end;
+        }
+        .bubble {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .received .bubble {
+            background: white;
+            border-top-left-radius: 3px;
+        }
+        .sent .bubble {
+            background: #DCF8C6;
+            border-top-right-radius: 3px;
+        }
+        .time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            padding: 0 5px;
+        }
+
+        /* CATALOG CARDS */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .product-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+        .product-img-placeholder {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        .product-info {
+            padding: 10px;
+        }
+        .product-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        .product-price {
+            font-size: 14px;
+            color: #075E54;
+            font-weight: bold;
+        }
+        .product-desc {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+        .order-btn {
+            width: 100%;
+            padding: 6px;
+            background: #25D366;
+            color: white;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .order-btn:hover {
+            background: #128C7E;
+        }
+
+        /* MENU BUTTONS */
+        .menu-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .menu-btn {
+            background: #E8F5E9;
+            border: 1.5px solid #25D366;
+            color: #075E54;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .menu-btn:hover, .menu-btn.active {
+            background: #25D366;
+            color: white;
+        }
+
+        /* COLORS */
+        .color-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .color-chip {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: border 0.2s, transform 0.2s;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 3px;
+        }
+        .color-chip:hover {
+            border-color: #075E54;
+            transform: scale(1.1);
+        }
+        .color-chip span {
+            font-size: 9px;
+            color: white;
+            text-shadow: 0 0 3px #000;
+            font-weight: bold;
+        }
+
+        /* INPUT AREA */
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #F0F0F0;
+            padding: 10px 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+        .send-btn {
+            width: 45px;
+            height: 45px;
+            background: #25D366;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .send-btn:hover {
+            background: #128C7E;
+        }
+
+        /* TYPING */
+        .typing {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 14px;
+            background: white;
+            border-radius: 15px;
+            border-top-left-radius: 3px;
+            width: fit-content;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .chat-area { padding-bottom: 80px; }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .modal h3 {
+            color: #075E54;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .modal input, .modal textarea, .modal select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .modal input:focus, 
+        .modal textarea:focus,
+        .modal select:focus {
+            border-color: #25D366;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+        }
+        .modal-confirm {
+            flex: 1;
+            padding: 12px;
+            background: #25D366;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+        }
+        .modal-confirm:hover {
+            background: #075E54;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="product-img-placeholder" 
+    style="width:45px;height:45px;border-radius:50%;
+    background:#25D366;font-size:22px;margin-right:12px;
+    flex-shrink:0;">🪵</div>
+    <div class="header-info">
+        <h3>Panel & Mebel Mağazası</h3>
+        <span>🟢 Online</span>
+    </div>
+    <a class="header-whatsapp" 
+    href="https://wa.me/994XXXXXXXXX" 
+    target="_blank">💬 Zəng et</a>
+</div>
+
+<!-- CHAT AREA -->
+<div class="chat-area" id="chatArea">
+
+    <!-- Salamlama -->
+    <div class="message received" id="welcomeMsg">
+        <div class="bubble">
+            Salam! 👋 <b>Panel & Mebel Mağazasına</b> xoş gəldiniz!<br><br>
+            Aşağıdakı bölmələrdən birini seçin:
+            <div class="menu-buttons">
+                <button class="menu-btn" 
+                onclick="showCategory('mdf')">
+                🪵 MDF Panel
+                </button>
+                <button class="menu-btn" 
+                onclick="showCategory('laminat')">
+                📦 Laminat
+                </button>
+                <button class="menu-btn" 
+                onclick="showCategory('3d')">
+                ✨ 3D Panel
+                </button>
+                <button class="menu-btn" 
+                onclick="showCategory('divar')">
+                🏠 Divar Paneli
+                </button>
+                <button class="menu-btn" 
+                onclick="showColors()">
+                🎨 Rənglər
+                </button>
+                <button class="menu-btn" 
+                onclick="showPrices()">
+                💰 Qiymətlər
+                </button>
+                <button class="menu-btn" 
+                onclick="showContact()">
+                📞 Əlaqə
+                </button>
+            </div>
+        </div>
+        <span class="time">10:00</span>
+    </div>
+
+</div>
+
+<!-- TYPING INDICATOR -->
+<div style="padding: 0 15px 10px; 
+max-width:600px; margin:0 auto;">
+    <div class="typing" id="typing">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    </div>
+</div>
+
+<!-- INPUT AREA -->
+<div class="input-area">
+    <input type="text" id="userInput" 
+    placeholder="Mesaj yazın..." 
+    onkeypress="handleKeyPress(event)">
+    <button class="send-btn" onclick="sendMessage()">➤</button>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="orderModal">
+    <div class="modal">
+        <h3>🛒 Sifariş Ver</h3>
+        <div id="selectedProductInfo" 
+        style="background:#f0f9f0;padding:10px;
+        border-radius:8px;margin-bottom:15px;
+        font-size:13px;color:#075E54;"></div>
+        
+        <input type="text" id="orderName" 
+        placeholder="👤 Adınız">
+        
+        <input type="tel" id="orderPhone" 
+        placeholder="📞 Telefon: 050 XXX XX XX">
+        
+        <input type="number" id="orderSize" 
+        placeholder="📐 Neçə kv.m lazımdır?">
+        
+        <select id="orderInstall">
+            <option value="yox">
+            🔧 Quraşdırma — xeyr
+            </option>
+            <option value="bəli">
+            🔧 Quraşdırma — bəli (+8 AZN/kv.m)
+            </option>
+        </select>
+        
+        <input type="text" id="orderAddress" 
+        placeholder="📍 Çatdırılma ünvanı">
+        
+        <textarea id="orderNote" rows="2" 
+        placeholder="💬 Əlavə qeyd..."></textarea>
+        
+        <div class="modal-buttons">
+            <button class="modal-cancel" 
+            onclick="closeModal()">❌ Ləğv et</button>
+            <button class="modal-confirm" 
+            onclick="confirmOrder()">
+            ✅ WhatsApp ilə Göndər
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// MƏLUMATLAR — BURDAKİLƏRİ DƏYİŞ!
+// ============================================
+const WHATSAPP_NUMBER = '994XXXXXXXXX'; // ← Nömrəni yaz
+const SHOP_NAME = 'Panel & Mebel Mağazası';
+
+const products = {
+    mdf: [
+        {
+            id: 'mdf1',
+            name: 'MDF Düz Panel',
+            price: '15 AZN/kv.m',
+            priceNum: 15,
+            emoji: '🪵',
+            color: '#D2B48C',
+            desc: 'Klassik, hamar səth'
+        },
+        {
+            id: 'mdf2',
+            name: 'MDF Frez Panel',
+            price: '20 AZN/kv.m',
+            priceNum: 20,
+            emoji: '🪵',
+            color: '#8B6914',
+            desc: 'Ciziqli, dekorativ'
+        },
+        {
+            id: 'mdf3',
+            name: 'MDF Laklı Panel',
+            price: '25 AZN/kv.m',
+            priceNum: 25,
+            emoji: '✨',
+            color: '#C0A080',
+            desc: 'Parlaq, lüks görünüş'
+        },
+        {
+            id: 'mdf4',
+            name: 'MDF UV Panel',
+            price: '30 AZN/kv.m',
+            priceNum: 30,
+            emoji: '🌟',
+            color: '#A0826D',
+            desc: 'UV rəng, solmaz'
+        }
+    ],
+    laminat: [
+        {
+            id: 'lam1',
+            name: 'Laminat 8mm',
+            price: '18 AZN/kv.m',
+            priceNum: 18,
+            emoji: '📦',
+            color: '#DEB887',
+            desc: 'Standart, davamlı'
+        },
+        {
+            id: 'lam2',
+            name: 'Laminat 12mm',
+            price: '24 AZN/kv.m',
+            priceNum: 24,
+            emoji: '📦',
+            color: '#CD853F',
+            desc: 'Qalın, anti-səs'
+        },
+        {
+            id: 'lam3',
+            name: 'Su Keçirməz Laminat',
+            price: '28 AZN/kv.m',
+            priceNum: 28,
+            emoji: '💧',
+            color: '#8B7355',
+            desc: 'Vanna, mətbəx üçün'
+        },
+        {
+            id: 'lam4',
+            name: 'Herringbone Laminat',
+            price: '35 AZN/kv.m',
+            priceNum: 35,
+            emoji: '♦️',
+            color: '#BC8F5F',
+            desc: 'Balıqsırtı naxış'
+        }
+    ],
+    '3d': [
+        {
+            id: '3d1',
+            name: '3D Dalğa Panel',
+            price: '35 AZN/kv.m',
+            priceNum: 35,
+            emoji: '🌊',
+            color: '#B0C4DE',
+            desc: 'Müasir, unikal'
+        },
+        {
+            id: '3d2',
+            name: '3D Kub Panel',
+            price: '38 AZN/kv.m',
+            priceNum: 38,
+            emoji: '🔷',
+            color: '#87CEEB',
+            desc: 'Həndəsi dizayn'
+        },
+        {
+            id: '3d3',
+            name: '3D Taxtavari Panel',
+            price: '40 AZN/kv.m',
+            priceNum: 40,
+            emoji: '🪵',
+            color: '#A0522D',
+            desc: 'Təbii görünüş'
+        },
+        {
+            id: '3d4',
+            name: '3D Daş Panel',
+            price: '45 AZN/kv.m',
+            priceNum: 45,
+            emoji: '🪨',
+            color: '#808080',
+            desc: 'Daş effekti'
+        }
+    ],
+    divar: [
+        {
+            id: 'div1',
+            name: 'PVC Divar Paneli',
+            price: '12 AZN/kv.m',
+            priceNum: 12,
+            emoji: '🏠',
+            color: '#F5F5DC',
+            desc: 'Yüngül, asan quraşdırma'
+        },
+        {
+            id: 'div2',
+            name: 'Taxta Divar Paneli',
+            price: '22 AZN/kv.m',
+            priceNum: 22,
+            emoji: '🌲',
+            color: '#8FBC8F',
+            desc: 'Ekoloji, istilik'
+        },
+        {
+            id: 'div3',
+            name: 'Beton Effekt Panel',
+            price: '30 AZN/kv.m',
+            priceNum: 30,
+            emoji: '🏗️',
+            color: '#A9A9A9',
+            desc: 'Industrial stil'
+        },
+        {
+            id: 'div4',
+            name: 'Mərmar Effekt Panel',
+            price: '42 AZN/kv.m',
+            priceNum: 42,
+            emoji: '💎',
+            color: '#E8E8E8',
+            desc: 'Premium, lüks'
+        }
+    ]
+};
+
+const colors = [
+    { name: 'Ağ', hex: '#FFFFFF', border: '#ddd' },
+    { name: 'Krem', hex: '#FFF8DC', border: '#ddd' },
+    { name: 'Bej', hex: '#F5F5DC', border: '#ddd' },
+    { name: 'Gri', hex: '#808080', border: 'transparent' },
+    { name: 'Qara', hex: '#222222', border: 'transparent' },
+    { name: 'Qoz', hex: '#8B4513', border: 'transparent' },
+    { name: 'Palıd', hex: '#DEB887', border: 'transparent' },
+    { name: 'Tünd Palıd', hex: '#A0522D', border: 'transparent' },
+    { name: 'Ərik', hex: '#FFCBA4', border: '#ddd' },
+    { name: 'Mavi', hex: '#4682B4', border: 'transparent' },
+    { name: 'Yaşıl', hex: '#2E8B57', border: 'transparent' },
+    { name: 'Qırmızı', hex: '#8B0000', border: 'transparent' }
+];
+
+// ============================================
+// FUNKSIYALAR
+// ============================================
+let selectedProduct = null;
+const now = new Date();
+const timeStr = now.getHours() + ':' + 
+    String(now.getMinutes()).padStart(2, '0');
+
+function getTime() {
+    const t = new Date();
+    return t.getHours() + ':' + 
+        String(t.getMinutes()).padStart(2, '0');
+}
+
+function addUserMessage(text) {
+    const chatArea = document.getElementById('chatArea');
+    const div = document.createElement('div');
+    div.className = 'message sent';
+    div.innerHTML = `
+        <div class="bubble">${text}</div>
+        <span class="time">${getTime()}</span>
+    `;
+    chatArea.appendChild(div);
+    scrollToBottom();
+}
+
+function addBotMessage(content, delay = 1000) {
+    showTyping();
+    setTimeout(() => {
+        hideTyping();
+        const chatArea = document.getElementById('chatArea');
+        const div = document.createElement('div');
+        div.className = 'message received';
+        div.innerHTML = `
+            <div class="bubble">${content}</div>
+            <span class="time">${getTime()}</span>
+        `;
+        chatArea.appendChild(div);
+        scrollToBottom();
+    }, delay);
+}
+
+function showTyping() {
+    document.getElementById('typing').style.display = 'flex';
+    scrollToBottom();
+}
+
+function hideTyping() {
+    document.getElementById('typing').style.display = 'none';
+}
+
+function scrollToBottom() {
+    setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+    }, 100);
+}
+
+// Kateqoriya göstər
+function showCategory(type) {
+    const names = {
+        mdf: '🪵 MDF Panellər',
+        laminat: '📦 Laminat Panellər',
+        '3d': '✨ 3D Panellər',
+        divar: '🏠 Divar Panelləri'
+    };
+    
+    addUserMessage(names[type]);
+    
+    let cards = '';
+    products[type].forEach(p => {
+        cards += `
+            <div class="product-card" 
+            onclick="openOrder('${p.id}', '${p.name}', '${p.price}')">
+                <div class="product-img-placeholder" 
+                style="background:${p.color}20;color:${p.color};">
+                    ${p.emoji}
+                </div>
+                <div class="product-info">
+                    <div class="product-name">${p.name}</div>
+                    <div class="product-price">${p.price}</div>
+                    <div class="product-desc">${p.desc}</div>
+                </div>
+                <button class="order-btn">
+                🛒 Sifariş Ver
+                </button>
+            </div>
+        `;
+    });
+
+    const content = `
+        <b>${names[type]}</b><br>
+        Məhsulu seçin:<br><br>
+        <div class="catalog-grid">${cards}</div>
+        <div class="menu-buttons" style="margin-top:12px">
+            <button class="menu-btn" 
+            onclick="backToMenu()">
+            🔙 Geri
+            </button>
+        </div>
+    `;
+    
+    addBotMessage(content);
+}
+
+// Rənglər göstər
+function showColors() {
+    addUserMessage('🎨 Rənglər');
+    
+    let colorChips = '';
+    colors.forEach(c => {
+        colorChips += `
+            <div class="color-chip" 
+            style="background:${c.hex};
+            border-color:${c.border};"
+            title="${c.name}"
+            onclick="selectColor('${c.name}')">
+                <span>${c.name}</span>
+            </div>
+        `;
+    });
+
+    const content = `
+        <b>🎨 Mövcud rənglər:</b><br>
+        Rəng seçin, sifariş verin:<br>
+        <div class="color-grid">${colorChips}</div>
+        <br><small>💡 Digər rənglər üçün bizimlə 
+        əlaqə saxlayın</small>
+        <div class="menu-buttons" style="margin-top:10px">
+            <button class="menu-btn" 
+            onclick="backToMenu()">🔙 Geri</button>
+        </div>
+    `;
+    
+    addBotMessage(content);
+}
+
+function selectColor(colorName) {
+    addUserMessage(`🎨 ${colorName} rəng seçdim`);
+    addBotMessage(`
+        ✅ <b>${colorName}</b> rəng seçdiniz!<br><br>
+        Hansı məhsulda istəyirsiniz?
+        <div class="menu-buttons" style="margin-top:10px">
+            <button class="menu-btn" 
+            onclick="showCategory('mdf')">🪵 MDF</button>
+            <button class="menu-btn" 
+            onclick="showCategory('laminat')">📦 Laminat</button>
+            <button class="menu-btn" 
+            onclick="showCategory('3d')">✨ 3D</button>
+            <button class="menu-btn" 
+            onclick="showCategory('divar')">🏠 Divar</button>
+        </div>
+    `);
+}
+
+// Qiymətlər göstər
+function showPrices() {
+    addUserMessage('💰 Qiymətlər');
+    addBotMessage(`
+        <b>💰 Qiymət Siyahısı:</b><br><br>
+        <b>🪵 MDF Panel:</b><br>
+        &nbsp;&nbsp;• Düz: 15 AZN/kv.m<br>
+        &nbsp;&nbsp;• Frez: 20 AZN/kv.m<br>
+        &nbsp;&nbsp;• Laklı: 25 AZN/kv.m<br>
+        &nbsp;&nbsp;• UV: 30 AZN/kv.m<br><br>
+        <b>📦 Laminat:</b><br>
+        &nbsp;&nbsp;• 8mm: 18 AZN/kv.m<br>
+        &nbsp;&nbsp;• 12mm: 24 AZN/kv.m<br>
+        &nbsp;&nbsp;• Su keçirməz: 28 AZN/kv.m<br>
+        &nbsp;&nbsp;• Herringbone: 35 AZN/kv.m<br><br>
+        <b>✨ 3D Panel:</b><br>
+        &nbsp;&nbsp;• Dalğa: 35 AZN/kv.m<br>
+        &nbsp;&nbsp;• Kub: 38 AZN/kv.m<br>
+        &nbsp;&nbsp;• Taxta: 40 AZN/kv.m<br>
+        &nbsp;&nbsp;• Daş: 45 AZN/kv.m<br><br>
+        <b>🏠 Divar Paneli:</b><br>
+        &nbsp;&nbsp;• PVC: 12 AZN/kv.m<br>
+        &nbsp;&nbsp;• Taxta: 22 AZN/kv.m<br>
+        &nbsp;&nbsp;• Beton: 30 AZN/kv.m<br>
+        &nbsp;&nbsp;• Mərmar: 42 AZN/kv.m<br><br>
+        <b>🔧 Quraşdırma:</b> +8 AZN/kv.m<br>
+        <b>🚗 Çatdırılma:</b> Bakı daxili pulsuz<br><br>
+        <div class="menu-buttons">
+            <button class="menu-btn" 
+            onclick="backToMenu()">🔙 Geri</button>
+        </div>
+    `);
+}
+
+// Əlaqə göstər
+function showContact() {
+    addUserMessage('📞 Əlaqə');
+    addBotMessage(`
+        <b>📞 Bizimlə Əlaqə:</b><br><br>
+        📱 WhatsApp: +994 XX XXX XX XX<br>
+        📞 Telefon: +994 XX XXX XX XX<br>
+        📍 Ünvan: Bakı, [ünvan]<br>
+        ⏰ İş saatları: 09:00 - 19:00<br>
+        📅 Həftə içi + Şənbə<br><br>
+        <a href="https://wa.me/994XXXXXXXXX" 
+        target="_blank"
+        style="background:#25D366;color:white;
+        padding:10px 20px;border-radius:20px;
+        text-decoration:none;font-weight:bold;
+        display:inline-block;margin-top:5px;">
+        💬 WhatsApp-da Yaz
+        </a>
+        <div class="menu-buttons" style="margin-top:12px">
+            <button class="menu-btn" 
+            onclick="backToMenu()">🔙 Geri</button>
+        </div>
+    `);
+}
+
+// Menüyə qayıt
+function backToMenu() {
+    addBotMessage(`
+        Ana menü:<br><br>
+        <div class="menu-buttons">
+            <button class="menu-btn" 
+            onclick="showCategory('mdf')">🪵 MDF Panel</button>
+            <button class="menu-btn" 
+            onclick="showCategory('laminat')">📦 Laminat</button>
+            <button class="menu-btn" 
+            onclick="showCategory('3d')">✨ 3D Panel</button>
+            <button class="menu-btn" 
+            onclick="showCategory('divar')">🏠 Divar Paneli</button>
+            <button class="menu-btn" 
+            onclick="showColors()">🎨 Rənglər</button>
+            <button class="menu-btn" 
+            onclick="showPrices()">💰 Qiymətlər</button>
+            <button class="menu-btn" 
+            onclick="showContact()">📞 Əlaqə</button>
+        </div>
+    `);
+}
+
+// Sifariş modalı aç
+function openOrder(id, name, price) {
+    selectedProduct = { id, name, price };
+    document.getElementById('selectedProductInfo').innerHTML = 
+        `✅ Seçilmiş: <b>${name}</b> — <b>${price}</b>`;
+    document.getElementById('orderModal')
+        .classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('orderModal')
+        .classList.remove('show');
+}
+
+// Sifarişi təsdiqlə
+function confirmOrder() {
+    const name = document.getElementById('orderName').value;
+    const phone = document.getElementById('orderPhone').value;
+    const size = document.getElementById('orderSize').value;
+    const install = document.getElementById('orderInstall').value;
+    const address = document.getElementById('orderAddress').value;
+    const note = document.getElementById('orderNote').value;
+
+    if (!name || !phone) {
+        alert('⚠️ Ad və telefon daxil edin!');
+        return;
+    }
+
+    const message = 
+        `🛒 YENİ SİFARİŞ — ${SHOP_NAME}\n\n` +
+        `📦 Məhsul: ${selectedProduct.name}\n` +
+        `💰 Qiymət: ${selectedProduct.price}\n` +
+        `📐 Ölçü: ${size || '?'} kv.m\n\n` +
+        `👤 Ad: ${name}\n` +
+        `📞 Telefon: ${phone}\n` +
+        `🔧 Quraşdırma: ${install}\n` +
+        `📍 Ünvan: ${address || 'bildirilməyib'}\n` +
+        `💬 Qeyd: ${note || 'yoxdur'}`;
+
+    const url = `https://wa.me/${WHATSAPP_NUMBER}` +
+        `?text=${encodeURIComponent(message)}`;
+    
+    window.open(url, '_blank');
+    closeModal();
+    
+    addBotMessage(`
+        ✅ <b>Sifarişiniz göndərildi!</b><br><br>
+        Tezliklə sizinlə əlaqə saxlayacağıq.<br>
+        Təşəkkür edirik! 🙏<br><br>
+        <div class="menu-buttons">
+            <button class="menu-btn" 
+            onclick="backToMenu()">🏠 Ana Menü</button>
+        </div>
+    `);
+}
+
+// Mesaj göndər
+function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    addUserMessage(text);
+    input.value = '';
+    
+    // Açar söz axtarış
+    const lower = text.toLowerCase();
+    
+    if (lower.includes('mdf')) {
+        showCategory('mdf');
+    } else if (lower.includes('laminat')) {
+        showCategory('laminat');
+    } else if (lower.includes('3d')) {
+        showCategory('3d');
+    } else if (lower.includes('divar')) {
+        showCategory('divar');
+    } else if (lower.includes('qiymət') || 
+               lower.includes('price')) {
+        showPrices();
+    } else if (lower.includes('rəng') || 
+               lower.includes('color')) {
+        showColors();
+    } else if (lower.includes('əlaqə') || 
+               lower.includes('telefon') ||
+               lower.includes('contact')) {
+        showContact();
+    } else if (lower.includes('salam') || 
+               lower.includes('hello') ||
+               lower.includes('hi')) {
+        backToMenu();
+    } else {
+        addBotMessage(`
+            Başa düşmədim 😊<br>
+            Aşağıdakılardan birini seçin:
+            <div class="menu-buttons" 
+            style="margin-top:10px">
+                <button class="menu-btn" 
+                onclick="showCategory('mdf')">
+                🪵 MDF</button>
+                <button class="menu-btn" 
+                onclick="showPrices()">
+                💰 Qiymətlər</button>
+                <button class="menu-btn" 
+                onclick="showContact()">
+                📞 Əlaqə</button>
+            </div>
+        `);
+    }
+}
+
+function handleKeyPress(e) {
+    if (e.key === 'Enter') sendMessage();
+}
+</script>
+</body>
+</html>
